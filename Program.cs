@@ -1,35 +1,36 @@
-﻿using HidSharp;
+﻿using KeyCassTrompete;
 
-var devices = DeviceList.Local.GetHidDevices(vendorID: 0xFEED, productID: 0x0000);
-
-HidDevice? rawDevice = null;
-foreach (var d in devices)
+if (args.Length == 0)
 {
-    if (d.GetReportDescriptor().DeviceItems
-        .Any(item => item.Usages.GetAllValues()
-        .Any(u => (u >> 16) == 0xFF60)))
-    {
-        rawDevice = d;
+    // Comportamento padrao: executar HidListener
+    HidListener.Run();
+    return;
+}
+
+string comando = args[0].ToLower();
+
+switch (comando)
+{
+    case "":
+    case "hid":
+    case "listener":
+        HidListener.Run();
         break;
-    }
-}
 
-if (rawDevice != null)
-{
-    var stream = rawDevice.Open();
-    stream.ReadTimeout = Timeout.Infinite;
+    case "build":
+    case "template":
+    case "process":
+        TemplateProcessor.Run();
+        break;
 
-    var buffer = new byte[32];
-    Console.WriteLine("Aguardando teclas...");
-    while (true)
-    {
-        stream.Read(buffer);
-        ushort keycode = (ushort)((buffer[1] << 8) | buffer[2]);
-byte estado = buffer[3];
-Console.WriteLine($"Tecla: {keycode}, Estado: {(estado == 1 ? "pressionada" : "solta")}");
-    }
-}
-else
-{
-    Console.WriteLine("Raw HID device nao encontrado");
+    default:
+        Console.WriteLine("Comando invalido!");
+        Console.WriteLine();
+        Console.WriteLine("Comandos disponiveis:");
+        Console.WriteLine("  hid, listener         - Escutar eventos HID do teclado");
+        Console.WriteLine("  template, process     - Processar keymap.c.template");
+        Console.WriteLine();
+        Console.WriteLine("Uso: dotnet run [comando]");
+        Console.WriteLine("  Sem argumentos: executa o HID Listener por padrao");
+        break;
 }

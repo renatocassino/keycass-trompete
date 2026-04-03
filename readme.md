@@ -31,3 +31,12 @@ Enter the bootloader in 3 ways:
 Ψ Build Command: qmk compile -kb keycass_trompete -km default.
 Ψ Project Location: /home/cassinodev/qmk_firmware/keyboards/keycass_trompete.
 ```
+
+
+No meu estudo de caso:
+
+Literatura:  a e o s r i n d m u t c l p v g h q b f z j x k w y
+Wikipedia:   a e o i s r d n t c m u l p g b f v h q z j k x y w
+Seu Whatsapp: a e o i r s m u n t d c h l p v k q g b f z j x w y
+
+Minha proposta: a e o i s r d u m n c t l p b g f v q j z h k w x y
