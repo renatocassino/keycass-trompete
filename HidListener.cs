@@ -1,4 +1,5 @@
 using HidSharp;
+using KeyCass.Modules.TextProcessor;
 
 namespace KeyCassTrompete;
 
@@ -45,10 +46,12 @@ public static class HidListener
         };
     }
 
-    public static void Run()
+    public async static void Run()
     {
         Console.WriteLine("=== HID Listener ===");
         Console.WriteLine("Procurando dispositivo HID...\n");
+
+        TextProcessor.Start();
 
         var devices = DeviceList.Local.GetHidDevices(vendorID: 0xFEED, productID: 0x0000);
 
@@ -79,13 +82,19 @@ public static class HidListener
                 // O QMK envia: data[0] = byte alto, data[1] = byte baixo, data[2] = estado
                 // Então no buffer: [0] = Report ID, [1] = byte alto, [2] = byte baixo, [3] = estado
                 ushort keycode = (ushort)((buffer[1] << 8) | buffer[2]);
-                byte estado = buffer[3];
+                byte state = buffer[3];
 
                 // Converte keycode para caractere
                 char? ch = KeycodeToChar(keycode);
                 string charInfo = ch.HasValue ? $" = '{ch}'" : "";
 
-                Console.WriteLine($"Keycode: 0x{keycode:X4}{charInfo}, Estado: {(estado == 1 ? "pressionada" : "solta")}");
+                // Enfileira o caractere quando a tecla é pressionada
+                if (state == 1 && ch.HasValue)
+                {
+                    await TextProcessor.EnqueueKey(ch.Value.ToString());
+                }
+
+                Console.WriteLine($"Keycode: 0x{keycode:X4}{charInfo}, Estado: {(state == 1 ? "pressionada" : "solta")}");
             }
         }
         else
