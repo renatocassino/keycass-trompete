@@ -4,6 +4,47 @@ namespace KeyCassTrompete;
 
 public static class HidListener
 {
+    // Converte keycode USB HID para caractere
+    // Referência: USB HID Usage Tables (padrão internacional)
+    // https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
+    private static char? KeycodeToChar(ushort keycode)
+    {
+        // Letras: USB HID 0x04-0x1D = 'a'-'z' (sequencial)
+        if (keycode >= 0x04 && keycode <= 0x1D)
+        {
+            return (char)('a' + (keycode - 0x04));
+        }
+
+        // Números: USB HID 0x1E-0x26 = '1'-'9', 0x27 = '0'
+        if (keycode >= 0x1E && keycode <= 0x26)
+        {
+            return (char)('1' + (keycode - 0x1E));
+        }
+        if (keycode == 0x27)
+        {
+            return '0';
+        }
+
+        // Caracteres especiais comuns
+        return keycode switch
+        {
+            0x2C => ' ',   // Espaço
+            0x28 => '\n',  // Enter
+            0x2D => '-',   // Minus/Underscore
+            0x2E => '=',   // Equal/Plus
+            0x2F => '[',   // Left bracket
+            0x30 => ']',   // Right bracket
+            0x31 => '\\',  // Backslash
+            0x33 => ';',   // Semicolon
+            0x34 => '\'',  // Apostrophe
+            0x35 => '`',   // Grave accent
+            0x36 => ',',   // Comma
+            0x37 => '.',   // Period
+            0x38 => '/',   // Slash
+            _ => null
+        };
+    }
+
     public static void Run()
     {
         Console.WriteLine("=== HID Listener ===");
@@ -33,9 +74,18 @@ public static class HidListener
             while (true)
             {
                 stream.Read(buffer);
+
+                // HID adiciona um Report ID no buffer[0]
+                // O QMK envia: data[0] = byte alto, data[1] = byte baixo, data[2] = estado
+                // Então no buffer: [0] = Report ID, [1] = byte alto, [2] = byte baixo, [3] = estado
                 ushort keycode = (ushort)((buffer[1] << 8) | buffer[2]);
                 byte estado = buffer[3];
-                Console.WriteLine($"Tecla: {keycode}, Estado: {(estado == 1 ? "pressionada" : "solta")}");
+
+                // Converte keycode para caractere
+                char? ch = KeycodeToChar(keycode);
+                string charInfo = ch.HasValue ? $" = '{ch}'" : "";
+
+                Console.WriteLine($"Keycode: 0x{keycode:X4}{charInfo}, Estado: {(estado == 1 ? "pressionada" : "solta")}");
             }
         }
         else
