@@ -24,7 +24,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 combo_t key_combos[] = {
     // COMBO(combo_ae, KC_X),  // A+E together = X
-    {{COMBOS}}
+{{COMBOS}}
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
