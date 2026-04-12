@@ -1,5 +1,6 @@
 using System.Text;
 using System.Threading.Channels;
+using KeyCass.Modules.Speaker;
 
 namespace KeyCass.Modules.TextProcessor;
 
@@ -24,7 +25,7 @@ public static class TextProcessor
 
     // Configs
     private const int MaxCharsBeforeSpeak = 20;
-    private const int DebounceDelayMs = 300;
+    private const int DebounceDelayMs = 1500;
 
     public static void Start()
     {
@@ -189,17 +190,17 @@ public static class TextProcessor
 
         // TODO: Descomentar quando tiver Speaker implementado
         // Enfileira o texto para falar (fire and forget)
-        // _ = Task.Run(async () =>
-        // {
-        //     try
-        //     {
-        //         await Speaker.Speaker.EnqueueText(textToSpeak);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine($"Error in debounce speech: {ex.Message}");
-        //     }
-        // });
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Speaker.Speaker.EnqueueText(textToSpeak);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in debounce speech: {ex.Message}");
+            }
+        });
     }
 
     private static bool MustSpeak()

@@ -1,5 +1,6 @@
 using HidSharp;
 using KeyCass.Modules.TextProcessor;
+using KeyCass.Modules.Speaker;
 
 namespace KeyCassTrompete;
 
@@ -52,6 +53,7 @@ public static class HidListener
         Console.WriteLine("Procurando dispositivo HID...\n");
 
         TextProcessor.Start();
+        Speaker.Start();
 
         var devices = DeviceList.Local.GetHidDevices(vendorID: 0xFEED, productID: 0x0000);
 
@@ -91,10 +93,9 @@ public static class HidListener
                 // Enfileira o caractere quando a tecla é pressionada
                 if (state == 1 && ch.HasValue)
                 {
+                    Console.WriteLine($"Keycode: 0x{keycode:X4} {charInfo}");
                     await TextProcessor.EnqueueKey(ch.Value.ToString());
                 }
-
-                Console.WriteLine($"Keycode: 0x{keycode:X4}{charInfo}, Estado: {(state == 1 ? "pressionada" : "solta")}");
             }
         }
         else
