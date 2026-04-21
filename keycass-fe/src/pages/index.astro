@@ -24,6 +24,7 @@ import Layout from '../layouts/Layout.astro';
 		</div>
 
 		<div
+			x-data
 			class="relative mx-auto flex min-h-screen max-w-lg flex-col px-6 pb-16 pt-14 sm:px-8 sm:pt-20"
 		>
 			<header class="mb-12 text-center sm:mb-14">
@@ -58,6 +59,7 @@ import Layout from '../layouts/Layout.astro';
 						id="voice"
 						name="voice"
 						disabled
+						@change="$store.speech.voiceURI = $event.target.value"
 						class="w-full appearance-none rounded-xl border border-slate-600/80 bg-slate-950/80 py-3.5 pl-4 pr-10 text-sm font-medium text-slate-100 shadow-inner outline-none transition focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/30 disabled:cursor-wait disabled:opacity-70"
 					>
 						<option value="">A carregar vozes…</option>
@@ -81,10 +83,21 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <script>
+	import Alpine from 'alpinejs';
 	import { initPtBrVoiceSelect } from '../scripts/ptBrVoices';
-    import { updateKeydown } from '../scripts/keydown';
+	import { updateKeydown } from '../scripts/keydown';
 
-    document.addEventListener('keydown', updateKeydown);
+	Alpine.store('speech', { voiceURI: '' });
 
+	const syncVoiceToStore = () => {
+		const select = document.getElementById('voice') as HTMLSelectElement;
+		if (select?.value) {
+			(Alpine.store('speech') as { voiceURI: string }).voiceURI = select.value;
+		}
+	};
+
+	document.addEventListener('keydown', updateKeydown);
 	initPtBrVoiceSelect('voice');
+	speechSynthesis.addEventListener('voiceschanged', syncVoiceToStore);
+	syncVoiceToStore();
 </script>

@@ -31,7 +31,8 @@ export class Speaker {
 		utt.lang = 'pt-BR';
 
 		const voices = this.synth.getVoices();
-		const voice = voices[14];
+		const voiceURI = (window as any).Alpine?.store('speech')?.voiceURI as string | undefined;
+		const voice = voiceURI ? (voices.find((v) => v.voiceURI === voiceURI) ?? null) : null;
 		if (voice) {
 			utt.voice = voice;
 		}
@@ -43,6 +44,7 @@ export class Speaker {
 					typeof event.error === 'string' && event.error.length > 0
 						? event.error
 						: 'Speech synthesis failed';
+
 				reject(new Error(msg));
 			};
 			this.synth.speak(utt);

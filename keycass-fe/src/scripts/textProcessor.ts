@@ -19,14 +19,14 @@ export class TextProcessor {
 
         if (this.currentText.length > MAX_CHARS_BEFORE_SPEAK) {
             this.debounce.cancel()
-            this.speak();
+            this.speak(true);
         }
 
         this.debounce();
     }
 
-    async speak() {
-        const expression = this.getExpression();
+    async speak(forceToSpeak = false) {
+        const expression = this.getExpression(forceToSpeak);
         console.log(`Expression: ${expression}`)
 
         if (expression.match(/[a-z]/)) {
@@ -37,28 +37,31 @@ export class TextProcessor {
         console.log(`Expression: ${expression}. Impossible to speak!`);
     }
 
-    getExpression(): string {
+    getExpression(forceToSpeak = false): string {
         const currentExpression = this.currentText.join('').trim();
         const charsToBreak = new Set([' ',  ',', '.', '!', '?', '\n']);
 
         // Procura do final para o início pelo último caractere de quebra
-        for (let i = currentExpression.length - 1; i >= 0; i--)
-        {
-            if (!charsToBreak.has(currentExpression[i]))
+        if (forceToSpeak) {
+            for (let i = currentExpression.length - 1; i >= 0; i--)
             {
-                continue;
+                if (!charsToBreak.has(currentExpression[i]))
+                {
+                    continue;
+                }
+
+                // Encontrou um caractere de quebra
+                const textToReturn = currentExpression.substring(0, i + 1); // Até o caractere (incluindo)
+                const remaining = currentExpression.substring(i + 1); // Depois do caractere
+
+                this.currentText = remaining.split('');
+
+                if (remaining) {
+                    this.debounce();
+                }
+
+                return textToReturn;
             }
-
-            // Encontrou um caractere de quebra
-            const textToReturn = currentExpression.substr(0, i + 1); // Até o caractere (incluindo)
-            const remaining = currentExpression.substr(i); // Depois do caractere
-
-            this.currentText = remaining.split('');
-
-            if (remaining) {
-                this.debounce();
-            }
-            return textToReturn;
         }
 
         this.currentText = [];
