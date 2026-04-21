@@ -78,6 +78,25 @@ import Layout from '../layouts/Layout.astro';
 					<code class="rounded bg-slate-800 px-1 py-0.5 text-slate-300">pt-BR</code>).
 				</p>
 			</section>
+
+			<section
+				class="mt-4 rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8"
+			>
+				<div class="flex flex-col items-center gap-4">
+					<div
+						class="flex h-28 w-28 items-center justify-center rounded-2xl border border-white/10 bg-slate-950/80"
+					>
+						<span
+							x-text="$store.speech.lastKey === ' ' ? '·' : ($store.speech.lastKey || '…')"
+							class="font-mono text-6xl font-bold text-cyan-300 select-none"
+						></span>
+					</div>
+					<p
+						x-text="$store.speech.currentText || 'aguardando entrada…'"
+						class="min-h-6 w-full break-all text-center font-mono text-sm text-slate-400"
+					></p>
+				</div>
+			</section>
 		</div>
 	</div>
 </Layout>
@@ -87,7 +106,7 @@ import Layout from '../layouts/Layout.astro';
 	import { initPtBrVoiceSelect } from '../scripts/ptBrVoices';
 	import { updateKeydown } from '../scripts/keydown';
 
-	Alpine.store('speech', { voiceURI: '' });
+	Alpine.store('speech', { voiceURI: '', lastKey: '', currentText: '' });
 
 	const syncVoiceToStore = () => {
 		const select = document.getElementById('voice') as HTMLSelectElement;

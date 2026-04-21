@@ -5,6 +5,7 @@ const TIME_TO_DEBOUNCE = 1500;
 const MAX_CHARS_BEFORE_SPEAK = 20;
 
 const speaker = new Speaker();
+const charsToBreak = new Set([' ',  ',', '.', '!', '?', '\n']);
 
 export class TextProcessor {
     private currentText = [];
@@ -12,6 +13,10 @@ export class TextProcessor {
 
     constructor() {
         this.debounce = debounce(this.speak.bind(this), TIME_TO_DEBOUNCE);
+    }
+
+    public getText(): string {
+        return this.currentText.join('');
     }
 
     public push(letter: string) {
@@ -31,22 +36,27 @@ export class TextProcessor {
 
         if (expression.match(/[a-z]/)) {
             await speaker.speak(expression);
-            return;
+        } else {
+            console.log(`Expression: ${expression}. Impossible to speak!`);
         }
 
-        console.log(`Expression: ${expression}. Impossible to speak!`);
+        const store = (window as any).Alpine?.store('speech') as
+            | { voiceURI: string; lastKey: string; currentText: string }
+            | undefined;
+
+        if (store) {
+            store.lastKey = '';
+            store.currentText = this.getText();
+        }
     }
 
     getExpression(forceToSpeak = false): string {
         const currentExpression = this.currentText.join('').trim();
-        const charsToBreak = new Set([' ',  ',', '.', '!', '?', '\n']);
 
         // Procura do final para o início pelo último caractere de quebra
         if (forceToSpeak) {
-            for (let i = currentExpression.length - 1; i >= 0; i--)
-            {
-                if (!charsToBreak.has(currentExpression[i]))
-                {
+            for (let i = currentExpression.length - 1; i >= 0; i--) {
+                if (!charsToBreak.has(currentExpression[i])) {
                     continue;
                 }
 
