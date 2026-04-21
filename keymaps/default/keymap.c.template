@@ -2,21 +2,23 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-#include "raw_hid.h"
 
-void raw_hid_receive(uint8_t *data, uint8_t length) {
-    // recebe dados do PC se precisar
-    // raw_hid_send(data, length); // envia de volta
-}
+// To use in raw mode, uncomment these lines bellow
+// #include "raw_hid.h"
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    uint8_t data[32] = {0};
-    data[0] = (keycode >> 8) & 0xFF;  // byte alto
-    data[1] = keycode & 0xFF;          // byte baixo
-    data[2] = record->event.pressed ? 1 : 0;
-    raw_hid_send(data, sizeof(data));
-    return false;
-}
+// void raw_hid_receive(uint8_t *data, uint8_t length) {
+//     // recebe dados do PC se precisar
+//     // raw_hid_send(data, length); // envia de volta
+// }
+
+// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+//     uint8_t data[32] = {0};
+//     data[0] = (keycode >> 8) & 0xFF;  // byte alto
+//     data[1] = keycode & 0xFF;          // byte baixo
+//     data[2] = record->event.pressed ? 1 : 0;
+//     raw_hid_send(data, sizeof(data));
+//     return false;
+// }
 
 // Define os combos
 // const uint16_t PROGMEM combo_ae[] = {KC_A, KC_E, COMBO_END};
