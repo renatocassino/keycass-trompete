@@ -97,6 +97,46 @@ import Layout from '../layouts/Layout.astro';
 					></p>
 				</div>
 			</section>
+			<section
+				class="mt-4 rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8"
+			>
+				<div class="flex items-center py-6">
+					<!-- Tecla 5: azul bebê, separada -->
+					<div
+						class="relative mr-8 h-14 w-14 shrink-0 cursor-default select-none rounded-t-xl rounded-b-lg border-b-[5px] border-sky-500 bg-gradient-to-b from-sky-200 to-sky-300 shadow-lg shadow-black/40 ring-1 ring-white/40 ring-inset"
+					>
+						<span class="absolute left-2 top-1.5 text-xs font-bold text-sky-900/70">5</span>
+					</div>
+
+					<!-- Teclas 1–4 com eixos y distintos -->
+					<div class="flex items-center gap-2">
+						<!-- 1: roxo, posição base -->
+						<div
+							class="relative h-14 w-14 cursor-default select-none rounded-t-xl rounded-b-lg border-b-[5px] border-violet-800 bg-gradient-to-b from-violet-400 to-violet-600 shadow-lg shadow-black/40 ring-1 ring-white/20 ring-inset"
+						>
+							<span class="absolute left-2 top-1.5 text-xs font-bold text-violet-100/80">1</span>
+						</div>
+						<!-- 2: laranja, mais acima -->
+						<div
+							class="relative h-14 w-14 -translate-y-3 cursor-default select-none rounded-t-xl rounded-b-lg border-b-[5px] border-orange-600 bg-gradient-to-b from-orange-300 to-orange-500 shadow-lg shadow-black/40 ring-1 ring-white/30 ring-inset"
+						>
+							<span class="absolute left-2 top-1.5 text-xs font-bold text-orange-900/70">2</span>
+						</div>
+						<!-- 3: rosa/vermelho, posição base -->
+						<div
+							class="relative h-14 w-14 cursor-default select-none rounded-t-xl rounded-b-lg border-b-[5px] border-rose-800 bg-gradient-to-b from-rose-400 to-rose-600 shadow-lg shadow-black/40 ring-1 ring-white/20 ring-inset"
+						>
+							<span class="absolute left-2 top-1.5 text-xs font-bold text-rose-100/80">3</span>
+						</div>
+						<!-- 4: branco fosco, mais abaixo -->
+						<div
+							class="relative h-14 w-14 translate-y-3 cursor-default select-none rounded-t-xl rounded-b-lg border-b-[5px] border-slate-400 bg-gradient-to-b from-white to-slate-200 shadow-lg shadow-black/40 ring-1 ring-white/60 ring-inset"
+						>
+							<span class="absolute left-2 top-1.5 text-xs font-bold text-slate-500/80">4</span>
+						</div>
+					</div>
+				</div>
+			</section>
 		</div>
 	</div>
 </Layout>
