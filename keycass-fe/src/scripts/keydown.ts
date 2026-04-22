@@ -5,7 +5,7 @@ const textProcessor = new TextProcessor();
 export function updateKeydown(event: KeyboardEvent): void {
 	const currentLetter = event.key.toLowerCase();
 
-	if (!currentLetter.match(/^[a-z ]$/)) {
+	if (!currentLetter.match(/^[a-z ]$/) || event.repeat) {
 		return;
 	}
 

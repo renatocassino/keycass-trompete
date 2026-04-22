@@ -13,18 +13,33 @@ const kcToChar = (kc: string): string => {
 	return m ? m[1] : kc;
 };
 
+const kcToEventKey = (kc: string): string => {
+	if (!kc) return '';
+	if (kc === 'KC_SPC') return ' ';
+	const m = kc.match(/^KC_([A-Z])$/);
+	return m ? m[1].toLowerCase() : '';
+};
+
+// reverseMap: tecla do evento → quais keycaps (K1–K5) compõem o chord
+const reverseMap: Record<string, string[]> = {};
+for (const [combo, kc] of Object.entries(keymap)) {
+	const eventKey = kcToEventKey(kc);
+	if (eventKey) reverseMap[eventKey] = combo.split('_');
+}
+
 // Estilos de cada tecla: superfície, texto, borda inferior (profundidade), posição y e separação
+// baseY em px (translate-y-3 = 12px a 16px base)
 const KEY_STYLE: Record<string, {
 	surface: string; labelColor: string; depth: string; ring: string;
 	badgeBg: string; badgeText: string; badgeDepth: string;
-	yOffset: string; mr: string;
+	baseY: number; mr: string;
 	badgeOffset: string; badgeMr: string;
 }> = {
-	K1: { surface: 'from-violet-400 to-violet-600', labelColor: 'text-violet-100/80', depth: 'border-violet-800', ring: 'ring-white/20', badgeBg: 'bg-violet-500', badgeText: 'text-violet-100', badgeDepth: 'border-violet-700', yOffset: '',              mr: '',    badgeOffset: '',              badgeMr: ''      },
-	K2: { surface: 'from-orange-300 to-orange-500', labelColor: 'text-orange-900/70', depth: 'border-orange-600', ring: 'ring-white/30', badgeBg: 'bg-orange-400', badgeText: 'text-orange-900', badgeDepth: 'border-orange-600', yOffset: '-translate-y-3', mr: '',    badgeOffset: '-translate-y-1', badgeMr: ''      },
-	K3: { surface: 'from-rose-400 to-rose-600',     labelColor: 'text-rose-100/80',   depth: 'border-rose-800',   ring: 'ring-white/20', badgeBg: 'bg-rose-500',   badgeText: 'text-rose-100',   badgeDepth: 'border-rose-700',   yOffset: '',              mr: '',    badgeOffset: '',              badgeMr: ''      },
-	K4: { surface: 'from-white to-slate-200',        labelColor: 'text-slate-500/80',  depth: 'border-slate-400',  ring: 'ring-white/60', badgeBg: 'bg-slate-200',  badgeText: 'text-slate-600',  badgeDepth: 'border-slate-400',  yOffset: 'translate-y-3',  mr: '',    badgeOffset: 'translate-y-1',  badgeMr: ''      },
-	K5: { surface: 'from-sky-200 to-sky-300',        labelColor: 'text-sky-900/70',    depth: 'border-sky-500',    ring: 'ring-white/40', badgeBg: 'bg-sky-300',    badgeText: 'text-sky-900',    badgeDepth: 'border-sky-500',    yOffset: '',              mr: 'mr-8', badgeOffset: '',              badgeMr: 'mr-2'  },
+	K1: { surface: 'from-violet-400 to-violet-600', labelColor: 'text-violet-100/80', depth: 'border-violet-800', ring: 'ring-white/20', badgeBg: 'bg-violet-500', badgeText: 'text-violet-100', badgeDepth: 'border-violet-700', baseY:   0, mr: '',    badgeOffset: '',              badgeMr: ''      },
+	K2: { surface: 'from-orange-300 to-orange-500', labelColor: 'text-orange-900/70', depth: 'border-orange-600', ring: 'ring-white/30', badgeBg: 'bg-orange-400', badgeText: 'text-orange-900', badgeDepth: 'border-orange-600', baseY: -12, mr: '',    badgeOffset: '-translate-y-1', badgeMr: ''      },
+	K3: { surface: 'from-rose-400 to-rose-600',     labelColor: 'text-rose-100/80',   depth: 'border-rose-800',   ring: 'ring-white/20', badgeBg: 'bg-rose-500',   badgeText: 'text-rose-100',   badgeDepth: 'border-rose-700',   baseY:   0, mr: '',    badgeOffset: '',              badgeMr: ''      },
+	K4: { surface: 'from-white to-slate-200',        labelColor: 'text-slate-500/80',  depth: 'border-slate-400',  ring: 'ring-white/60', badgeBg: 'bg-slate-200',  badgeText: 'text-slate-600',  badgeDepth: 'border-slate-400',  baseY:  12, mr: '',    badgeOffset: 'translate-y-1',  badgeMr: ''      },
+	K5: { surface: 'from-sky-200 to-sky-300',        labelColor: 'text-sky-900/70',    depth: 'border-sky-500',    ring: 'ring-white/40', badgeBg: 'bg-sky-300',    badgeText: 'text-sky-900',    badgeDepth: 'border-sky-500',    baseY:   0, mr: 'mr-8', badgeOffset: '',              badgeMr: 'mr-2'  },
 };
 
 // Ordem de exibição no teclado visual
@@ -143,8 +158,13 @@ const legendEntries = Object.entries(keymap)
 					{displayOrder.map((key) => {
 						const s = KEY_STYLE[key];
 						const num = key.replace('K', '');
+						const normalStyle = `transform:translateY(${s.baseY}px);border-bottom-width:5px`;
+						const pressedStyle = `transform:translateY(${s.baseY + 4}px);border-bottom-width:2px`;
 						return (
-							<div class={`relative h-14 w-14 shrink-0 cursor-default select-none rounded-t-xl rounded-b-lg border-b-[5px] bg-linear-to-b shadow-lg shadow-black/40 ring-1 ring-inset ${s.surface} ${s.depth} ${s.ring} ${s.yOffset} ${s.mr}`}>
+							<div
+								class={`relative h-14 w-14 shrink-0 cursor-default select-none rounded-t-xl rounded-b-lg bg-linear-to-b shadow-lg shadow-black/40 ring-1 ring-inset transition-[transform,border-bottom-width] duration-75 ${s.surface} ${s.depth} ${s.ring} ${s.mr}`}
+								:style={`$store.speech.pressedKeys.includes('${key}') ? '${pressedStyle}' : '${normalStyle}'`}
+							>
 								<span class={`absolute left-2 top-1.5 text-xs font-bold ${s.labelColor}`}>{num}</span>
 							</div>
 						);
@@ -181,21 +201,37 @@ const legendEntries = Object.entries(keymap)
 	</div>
 </Layout>
 
+<script is:inline define:vars={{ reverseMap }}>
+	window.__keymapReverse = reverseMap;
+</script>
+
 <script>
 	import Alpine from 'alpinejs';
 	import { initPtBrVoiceSelect } from '../scripts/ptBrVoices';
 	import { updateKeydown } from '../scripts/keydown';
 
-	Alpine.store('speech', { voiceURI: '', lastKey: '', currentText: '' });
+	type SpeechStore = { voiceURI: string; lastKey: string; currentText: string; pressedKeys: string[] };
+
+	Alpine.store('speech', { voiceURI: '', lastKey: '', currentText: '', pressedKeys: [] });
 
 	const syncVoiceToStore = () => {
 		const select = document.getElementById('voice') as HTMLSelectElement;
 		if (select?.value) {
-			(Alpine.store('speech') as { voiceURI: string }).voiceURI = select.value;
+			(Alpine.store('speech') as SpeechStore).voiceURI = select.value;
 		}
 	};
 
-	document.addEventListener('keydown', updateKeydown);
+	document.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === ' ') e.preventDefault();
+		updateKeydown(e);
+		const keys = (window as any).__keymapReverse?.[e.key.toLowerCase()] as string[] | undefined;
+		(Alpine.store('speech') as SpeechStore).pressedKeys = keys ?? [];
+	});
+
+	document.addEventListener('keyup', () => {
+		(Alpine.store('speech') as SpeechStore).pressedKeys = [];
+	});
+
 	initPtBrVoiceSelect('voice');
 	speechSynthesis.addEventListener('voiceschanged', syncVoiceToStore);
 	syncVoiceToStore();
